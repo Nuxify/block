@@ -59,7 +59,7 @@ module.exports = {
         // window.ethereum related
         'plugins/web3.ts',
         'plugins/utils.ts',
-        'components/wallet/WalletConnect.vue',
+        'components/web3/WalletHandler.vue',
       ],
       rules: {
         '@typescript-eslint/no-explicit-any': 'off',
