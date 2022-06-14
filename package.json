@@ -1,0 +1,65 @@
+{
+  "name": "block",
+  "version": "1.0.0",
+  "description": "Dapp starter template using Nuxt.",
+  "author": "Nuxify Inc.",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "build:static": "nuxt build && nuxt generate",
+    "generate": "nuxt generate",
+    "start": "nuxt start",
+    "lint": "eslint --ext .ts,.js,.vue --ignore-path .gitignore .",
+    "lint:fix": "eslint --ext .ts,.js,.vue --fix --ignore-path .gitignore .",
+    "test:unit": "jest -- test/unit/*.spec.ts"
+  },
+  "lint-staged": {
+    "*.{ts,js,vue}": "npm run lint",
+    "*.{css,vue}": "stylelint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "dependencies": {
+    "@babel/core": "7.13.15",
+    "@babel/preset-env": "7.13.15",
+    "@mdi/js": "^5.9.55",
+    "@nuxt/typescript-runtime": "^2.0.0",
+    "@nuxtjs/axios": "^5.11.0",
+    "@nuxtjs/pwa": "^3.0.0-0",
+    "@types/jest": "^26.0.15",
+    "babel-core": "^7.0.0-bridge.0",
+    "ethers": "^5.5.3",
+    "nuxt": "^2.15.4",
+    "nuxt-property-decorator": "^2.7.2",
+    "regenerator-runtime": "^0.13.7",
+    "vue-scrollto": "^2.20.0",
+    "vue-slick-carousel": "^1.0.6",
+    "vue-toastification": "^1.7.14"
+  },
+  "devDependencies": {
+    "@nuxt/types": "^2.13.2",
+    "@nuxt/typescript-build": "^2.0.3",
+    "@nuxtjs/eslint-config-typescript": "^5.0.0",
+    "@nuxtjs/eslint-module": "^3.0.1",
+    "@nuxtjs/stylelint-module": "^4.0.0",
+    "@nuxtjs/vuetify": "^1.0.0",
+    "@vue/test-utils": "^1.0.0-beta.27",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^26.6.3",
+    "eslint": "^7.14.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-nuxt": ">=0.4.2",
+    "eslint-plugin-prettier": "^3.1.2",
+    "husky": "^4.0.0",
+    "jest": "^26.6.3",
+    "lint-staged": "^10.0.0",
+    "prettier": "^2.2.1",
+    "stylelint": "^13.8.0",
+    "ts-jest": "^26.4.4",
+    "vue-jest": "^3.0.7"
+  }
+}
