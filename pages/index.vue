@@ -21,11 +21,14 @@ const WEB3_STORE = namespace('web3')
 export default class Index extends Vue {
   @WEB3_STORE.State('walletAddress') web3_wallet_address!: string
 
+  walletAddress: string = ''
+
   @Watch('web3_wallet_address')
   onWalletAddressChange(val: string): void {
     setTimeout(() => {
       if (val.length > 0) {
-        console.log('web3 wallet address:', this.web3_wallet_address)
+        this.walletAddress = this.web3_wallet_address
+        console.log('web3 wallet address:', this.walletAddress)
       }
     }, 1000)
   }
