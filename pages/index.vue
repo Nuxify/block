@@ -47,6 +47,8 @@ export default class Index extends Vue {
       state: true,
       message: 'Sample alert message here.',
       variant: 'success',
+      dismiss: true,
+      timeout: 10000,
     })
 
     //
