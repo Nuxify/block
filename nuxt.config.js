@@ -1,3 +1,17 @@
+import {
+  // contract addresses
+  GreeterContractAddress,
+  // abis
+  GreeterContractABI,
+} from './contracts/production'
+
+import {
+  // staging contract addresses
+  StagingGreeterContractAddress,
+  // staging abis
+  StagingGreeterContractABI,
+} from './contracts/staging'
+
 const DEBUG = process.env.NODE_ENV !== 'production'
 const APP_NAME = 'Block'
 const APP_DESCRIPTION = 'Dapp starter template using Nuxt.'
@@ -102,6 +116,12 @@ export default {
    */
   publicRuntimeConfig: {
     appName: APP_NAME,
+    debug: DEBUG,
+    // contracts
+    greeterContractAddress: DEBUG
+      ? StagingGreeterContractAddress
+      : GreeterContractAddress,
+    greeterContractABI: DEBUG ? StagingGreeterContractABI : GreeterContractABI,
   },
   /**
    * Private runtime configs

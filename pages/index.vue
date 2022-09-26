@@ -1,7 +1,27 @@
 <template>
-  <v-container class="home__container mx-auto">
-    <v-row justify="center" align="center">
-      <v-img src="/icon.png" class="mt-10" contain height="300" width="300" />
+  <v-container fluid class="home__container mx-auto">
+    <v-row class="justify-center px-5">
+      <v-col cols="12">
+        <h1 class="text-center">{{ greetingMessage }}</h1>
+      </v-col>
+      <v-col cols="12" sm="10" md="8" lg="5" xl="5">
+        <div class="d-flex">
+          <v-text-field v-model="message" outlined label="Enter greeting">
+          </v-text-field>
+          <v-btn
+            tile
+            depressed
+            height="56"
+            width="100"
+            color="primary"
+            class="ml-5 text-none"
+            :loading="isLoading"
+            @click="setGreeting"
+          >
+            Set
+          </v-btn>
+        </div>
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -27,15 +47,100 @@ export default class Index extends Vue {
   global_set_alert!: (payload: AlertInterface) => void
 
   walletAddress: string = ''
+  message: string = ''
+  greetingMessage: string = ''
+
+  isLoading: boolean = false
 
   @Watch('web3_wallet_address')
   onWalletAddressChange(val: string): void {
     setTimeout(() => {
       if (val.length > 0) {
         this.walletAddress = this.web3_wallet_address
+        this.getGreeting()
+
         console.log('web3 wallet address:', this.walletAddress)
       }
     }, 1000)
+  }
+
+  /**
+   * Get greeting message
+   *
+   * @return  {Promise<void>}
+   */
+  async getGreeting(): Promise<void> {
+    this.greetingMessage = await this.$web3.getGreeterContract().greet()
+  }
+
+  /**
+   * On transaction wait for receipt
+   *
+   * @param	 {string<boolean>}	 txHash
+   *
+   * @return	{Promise<boolean>}
+   */
+  async onTransactionWaitForReceipt(txHash: string): Promise<boolean> {
+    console.log('waiting for transaction receipt ...')
+    try {
+      await this.$web3.getWeb3Provider().waitForTransaction(txHash)
+      const receipt = await this.$web3
+        .getWeb3Provider()
+        .getTransactionReceipt(txHash)
+
+      return receipt !== null
+    } catch (err) {
+      return false
+    }
+  }
+
+  /**
+   * Get greeting message
+   *
+   * @return  {<Promise><void>}
+   */
+  async setGreeting(): Promise<void> {
+    if (this.message === '') {
+      this.$toast.error('Please enter a message')
+      return
+    }
+
+    this.isLoading = true
+
+    try {
+      const tx = await this.$web3
+        .getGreeterContract()
+        .functions.setGreeting(this.message)
+
+      if (tx.hash.length > 0) {
+        const result = await this.onTransactionWaitForReceipt(tx.hash)
+
+        if (!result) {
+          this.$toast.error(
+            'Kontrata Contract: Error occurred while processing request'
+          )
+          return
+        }
+      }
+
+      this.$toast.success('Set greeting successfully')
+      this.message = ''
+      this.getGreeting()
+    } catch (error) {
+      console.error(error)
+
+      const { message } = error as Error
+
+      if (message.includes('denied')) {
+        this.$toast.error('You cancelled the transaction.')
+      } else {
+        this.$toast.error(
+          'Kontrata Contract: Something went wrong while processing request'
+        )
+      }
+    }
+
+    this.isLoading = false
   }
 
   mounted(): void {
@@ -58,8 +163,20 @@ export default class Index extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .home__container {
   max-width: 1440px;
+  height: 100%;
+  position: relative;
+  .row {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    h1 {
+      font-size: 42px;
+    }
+  }
 }
 </style>

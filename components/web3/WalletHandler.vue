@@ -119,6 +119,16 @@ export default class WalletHandler extends Vue {
       default:
         this.$toast.error('Cannot connect to wallet')
     }
+
+    // get signer
+    const signer = this.$web3.getWeb3Provider().getSigner()
+
+    // initialize contract
+    this.$web3.initGreeterContract(
+      this.$config.greeterContractAddress,
+      this.$config.greeterContractABI,
+      signer
+    )
   }
 
   /**
@@ -132,7 +142,7 @@ export default class WalletHandler extends Vue {
         // switch to testnet bsc
         await (window as any).ethereum.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x61' }], // write the chainId here
+          params: [{ chainId: '0x5' }], // write the chainId here
         })
       } catch (error) {
         // add network to metamask (remove if metamask default networks)

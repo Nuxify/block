@@ -10,31 +10,17 @@ declare module 'vue/types/vue' {
 
     $web3: {
       getWeb3Provider(): ethers.providers.Web3Provider
-      getBaconContract(): ethers.Contract
-      getGreaseContract(): ethers.Contract
-      getTheFryingPanContract(): ethers.Contract
+      getGreeterContract(): ethers.Contract
       initWeb3Provider(
         provider:
           | ethers.providers.ExternalProvider
           | ethers.providers.JsonRpcFetchFunc
       ): ethers.providers.Web3Provider
-      initBaconContract(
+      initGreeterContract(
         address: string,
         abi: ethers.ContractInterface,
-        signer: ethers.Signer
-      ): ethers.Contract
-      initGreaseContract(
-        address: string,
-        abi: ethers.ContractInterface,
-        signer: ethers.Signer
-      ): ethers.Contract
-      initTheFryingPanContract(
-        address: string,
-        abi: ethers.ContractInterface,
-        signer: ethers.Signer
+        web3Signer: ethers.Signer
       ): ethers.Contract
     }
-    // nuxt runtime
-    $config: any
   }
 }
