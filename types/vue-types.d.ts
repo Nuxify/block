@@ -21,6 +21,9 @@ declare module 'vue/types/vue' {
         abi: ethers.ContractInterface,
         web3Signer: ethers.Signer
       ): ethers.Contract
+      utils: {
+        onTransactionWaitForReceipt(txHash: string): Promise<boolean>
+      }
     }
   }
 }

@@ -48,7 +48,7 @@ export default class Index extends Vue {
 
   walletAddress: string = ''
   message: string = ''
-  greetingMessage: string = ''
+  greetingMessage: string = '<Block>'
 
   isLoading: boolean = false
 
@@ -74,27 +74,6 @@ export default class Index extends Vue {
   }
 
   /**
-   * On transaction wait for receipt
-   *
-   * @param	 {string<boolean>}	 txHash
-   *
-   * @return	{Promise<boolean>}
-   */
-  async onTransactionWaitForReceipt(txHash: string): Promise<boolean> {
-    console.log('waiting for transaction receipt ...')
-    try {
-      await this.$web3.getWeb3Provider().waitForTransaction(txHash)
-      const receipt = await this.$web3
-        .getWeb3Provider()
-        .getTransactionReceipt(txHash)
-
-      return receipt !== null
-    } catch (err) {
-      return false
-    }
-  }
-
-  /**
    * Get greeting message
    *
    * @return  {<Promise><void>}
@@ -113,7 +92,9 @@ export default class Index extends Vue {
         .functions.setGreeting(this.message)
 
       if (tx.hash.length > 0) {
-        const result = await this.onTransactionWaitForReceipt(tx.hash)
+        const result = await this.$web3.utils.onTransactionWaitForReceipt(
+          tx.hash
+        )
 
         if (!result) {
           this.$toast.error(
@@ -123,7 +104,7 @@ export default class Index extends Vue {
         }
       }
 
-      this.$toast.success('Set greeting successfully')
+      this.$toast.success('Successfully set greeting message')
       this.message = ''
       this.getGreeting()
     } catch (error) {
@@ -153,10 +134,9 @@ export default class Index extends Vue {
       message: 'Sample alert message here.',
       variant: 'success',
       dismiss: true,
-      timeout: 10000,
+      timeout: 2000,
     })
 
-    //
     // Toast notification
     // this.$toast.info('Hello')
   }

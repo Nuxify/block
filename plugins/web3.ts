@@ -2,8 +2,7 @@ import { Context } from '@nuxt/types'
 import { ethers } from 'ethers'
 
 export default (ctx: Context, inject: any): void => {
-  let web3: ethers.providers.Web3Provider
-  // web3 provider
+  let web3: ethers.providers.Web3Provider // web3 provider
   let greeterContract: ethers.Contract
 
   inject('web3', {
@@ -48,6 +47,29 @@ export default (ctx: Context, inject: any): void => {
       web3Signer: ethers.Signer
     ): void {
       greeterContract = new ethers.Contract(address, abi, web3Signer)
+    },
+
+    /// Utility functions
+    utils: {
+      /**
+       * On transaction wait for receipt
+       *
+       * @param	 {string<boolean>}	 txHash
+       *
+       * @return	{Promise<boolean>}
+       */
+      async onTransactionWaitForReceipt(txHash: string): Promise<boolean> {
+        console.log('waiting for transaction receipt:', txHash)
+
+        try {
+          await web3.waitForTransaction(txHash)
+          const receipt = await web3.getTransactionReceipt(txHash)
+
+          return receipt !== null
+        } catch (err) {
+          return false
+        }
+      },
     },
   })
 }
