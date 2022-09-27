@@ -5,16 +5,21 @@
         <h1 class="text-center">{{ greetingMessage }}</h1>
       </v-col>
       <v-col cols="12" sm="10" md="8" lg="5" xl="5">
-        <div class="d-flex">
+        <div
+          class="d-flex"
+          :class="$vuetify.breakpoint.xsOnly ? 'flex-column' : ''"
+        >
           <v-text-field v-model="message" outlined label="Enter greeting">
           </v-text-field>
           <v-btn
             tile
             depressed
+            :block="$vuetify.breakpoint.xsOnly"
             height="56"
             width="100"
             color="primary"
-            class="ml-5 text-none"
+            class="text-none"
+            :class="$vuetify.breakpoint.xsOnly ? '' : 'ml-5'"
             :loading="isLoading"
             @click="setGreeting"
           >

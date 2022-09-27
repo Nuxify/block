@@ -34,44 +34,17 @@
           :class="[{ 'd-none': activePage != page.name }]"
         ></div>
       </v-btn>
-
-      <v-menu offset-y min-width="100vw">
-        <template #activator="{ on, attrs }">
-          <v-btn
-            color="primary"
-            x-large
-            v-bind="attrs"
-            text
-            class="hidden-md-and-up"
-            v-on="on"
-          >
-            <v-icon large>mdi-menu</v-icon>
-          </v-btn>
-        </template>
-        <v-list color="white" flat nav tile elevation="0">
-          <v-list-item
-            v-for="(page, key) in pages"
-            :key="key"
-            :to="page.to"
-            class="font-weight-bold"
-          >
-            <v-list-item-title
-              class="ml-3 my-3"
-              :class="[
-                { 'primary--text': activePage == page.name },
-                { 'accent--text': activePage != page.name },
-              ]"
-              >{{ page.title }}
-              <div
-                class="slider mt-3"
-                :class="[{ 'd-none': activePage != page.name }]"
-              ></div>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
       <v-spacer></v-spacer>
-      <div>
+      <v-btn
+        v-if="$vuetify.breakpoint.smAndDown"
+        color="primary"
+        x-large
+        text
+        @click="drawer = true"
+      >
+        <v-icon large>mdi-menu</v-icon>
+      </v-btn>
+      <div v-if="$vuetify.breakpoint.mdAndUp">
         <v-btn
           v-if="!web3_wallet_address"
           dark
@@ -95,6 +68,76 @@
         </v-btn>
       </div>
     </v-app-bar>
+    <!-- drawer -->
+    <v-navigation-drawer
+      v-if="$vuetify.breakpoint.smAndDown"
+      v-model="drawer"
+      app
+      width="350px"
+      class="nav__bar--container"
+    >
+      <div class="nav__bar--content">
+        <v-row no-gutters align="center">
+          <nuxt-link to="/">
+            <img
+              src="/logo/Nuxify-Logo-withText.svg"
+              lazy-src="/logo/Nuxify-Logo-withText.svg"
+              alt="Nuxify Logo"
+              width="180"
+              height="66"
+              class="ma-1"
+            />
+          </nuxt-link>
+          <v-spacer />
+
+          <v-btn icon color="dark__gray" class="mr-4" @click="drawer = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-row>
+
+        <v-list dense class="tabs__control--container">
+          <v-list-item
+            v-for="(page, key) in pages"
+            :key="key"
+            :to="page.to"
+            class="font-weight-bold pl-0"
+          >
+            <v-list-item-title class="ml-3 my-3 py-3 body-1">
+              {{ page.title }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+        <v-row no-gutters class="align-center connect__wallet--container px-4">
+          <v-btn
+            v-if="!web3_wallet_address"
+            dark
+            tile
+            block
+            height="44"
+            width="auto"
+            class="body-2 text-none primary"
+            @click="web3_set_connect_wallet_dialog(true)"
+          >
+            Connect Wallet
+          </v-btn>
+          <v-btn
+            v-else
+            dark
+            depressed
+            tile
+            block
+            height="44"
+            width="auto"
+            class="body-2 text-none primary"
+            @click="disconnectWallet"
+          >
+            <div>
+              <h1 class="body-2">{{ walletAddress }}</h1>
+            </div>
+          </v-btn>
+        </v-row>
+      </div>
+    </v-navigation-drawer>
   </div>
 </template>
 
@@ -115,6 +158,8 @@ export default class Header extends Vue {
   web3_set_connect_wallet_dialog!: (payload: boolean) => void
 
   @WEB3_STORE.State('walletAddress') web3_wallet_address!: string
+
+  drawer: boolean = false
 
   pages: Item[] = [
     {
@@ -172,8 +217,25 @@ export default class Header extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .header__container {
   height: 80px;
+}
+
+.nav__bar--container {
+  z-index: 5 !important;
+  .nav__bar--content {
+    position: relative;
+    height: 100%;
+    .tabs__control--container {
+      margin-top: 50px;
+    }
+    .connect__wallet--container {
+      position: absolute;
+      bottom: 2%;
+      left: 0;
+      right: 0;
+    }
+  }
 }
 </style>
