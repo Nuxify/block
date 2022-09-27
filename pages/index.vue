@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="home__container mx-auto">
-    <v-row class="justify-center px-5">
+    <v-row no-gutters class="justify-center px-5">
       <v-col cols="12">
         <h1 class="text-center">{{ greetingMessage }}</h1>
       </v-col>
