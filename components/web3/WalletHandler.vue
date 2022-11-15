@@ -23,6 +23,9 @@ export default class WalletHandler extends Vue {
   @WEB3_STORE.Action('setConnectWalletDialog')
   global_set_connect_wallet_dialog!: (payload: boolean) => void
 
+  @WEB3_STORE.Action('setDownloadMetamaskDialog')
+  web3_set_download_metamask_dialog!: (payload: boolean) => void
+
   @Prop({ default: 0 }) disconnectWalletTimestamp!: number
   @Prop({ default: {} as WalletInterface }) wallet!: WalletInterface
 
@@ -72,6 +75,16 @@ export default class WalletHandler extends Vue {
           const { message } = error as Error
 
           if (
+            wallet.provider === 'metamask' &&
+            this.$vuetify.breakpoint.smAndDown &&
+            (message.includes(
+              "Cannot read properties of undefined (reading 'request')"
+            ) ||
+              message.includes('An internal error has occurred'))
+          ) {
+            this.global_set_connect_wallet_dialog(false)
+            this.web3_set_download_metamask_dialog(true)
+          } else if (
             message.includes('denied') ||
             message.includes('User rejected the request')
           ) {

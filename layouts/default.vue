@@ -14,6 +14,8 @@
       @onClearWallet="onClearWallet"
     />
 
+    <DownloadMetamaskDialog />
+
     <!-- Alert pop-up -->
     <div class="alert--container">
       <v-alert
@@ -35,7 +37,11 @@
 import { Component, Vue, namespace, Watch } from 'nuxt-property-decorator'
 import { Footer } from '~/components/footer'
 import { Header } from '~/components/header'
-import { ConnectWalletModal, WalletHandler } from '~/components/web3'
+import {
+  ConnectWalletModal,
+  DownloadMetamaskDialog,
+  WalletHandler,
+} from '~/components/web3'
 import { AlertInterface } from '~/store/global/state.types'
 
 const GLOBAL_STORE = namespace('global')
@@ -50,6 +56,7 @@ interface WalletInterface {
 @Component({
   components: {
     ConnectWalletModal,
+    DownloadMetamaskDialog,
     Header,
     Footer,
     WalletHandler,
