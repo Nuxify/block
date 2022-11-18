@@ -75,22 +75,23 @@ export default class WalletHandler extends Vue {
           const { message } = error as Error
 
           if (
-            wallet.provider === 'metamask' &&
-            this.$vuetify.breakpoint.smAndDown &&
-            (message.includes(
-              "Cannot read properties of undefined (reading 'request')"
-            ) ||
-              message.includes('An internal error has occurred'))
-          ) {
-            this.global_set_connect_wallet_dialog(false)
-            this.web3_set_download_metamask_dialog(true)
-          } else if (
             message.includes('denied') ||
             message.includes('User rejected the request')
           ) {
             this.$toast.error('You cancelled the transaction')
-          } else {
-            this.$toast.error(message)
+          }
+          // for metamask
+          else if (wallet.provider === 'metamask') {
+            // for mobile
+            if (this.$vuetify.breakpoint.smAndDown) {
+              this.global_set_connect_wallet_dialog(false)
+              this.web3_set_download_metamask_dialog(true)
+            }
+            // for web
+            else {
+              this.clearWeb3TrackingFlags()
+              this.$router.push('/metamask-guide')
+            }
           }
 
           this.clearWeb3TrackingFlags()
