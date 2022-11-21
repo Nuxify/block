@@ -23,6 +23,9 @@ export default class WalletHandler extends Vue {
   @WEB3_STORE.Action('setConnectWalletDialog')
   global_set_connect_wallet_dialog!: (payload: boolean) => void
 
+  @WEB3_STORE.Action('setDownloadMetamaskDialog')
+  web3_set_download_metamask_dialog!: (payload: boolean) => void
+
   @Prop({ default: 0 }) disconnectWalletTimestamp!: number
   @Prop({ default: {} as WalletInterface }) wallet!: WalletInterface
 
@@ -76,8 +79,19 @@ export default class WalletHandler extends Vue {
             message.includes('User rejected the request')
           ) {
             this.$toast.error('You cancelled the transaction')
-          } else {
-            this.$toast.error(message)
+          }
+          // for metamask
+          else if (wallet.provider === 'metamask') {
+            // for mobile
+            if (this.$vuetify.breakpoint.smAndDown) {
+              this.global_set_connect_wallet_dialog(false)
+              this.web3_set_download_metamask_dialog(true)
+            }
+            // for web
+            else {
+              this.clearWeb3TrackingFlags()
+              this.$router.push('/metamask-guide')
+            }
           }
 
           this.clearWeb3TrackingFlags()

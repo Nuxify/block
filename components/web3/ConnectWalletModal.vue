@@ -31,6 +31,9 @@
             <v-img :src="item.logo" max-width="38px"></v-img>
           </v-card>
         </div>
+        <div class="metamask__guide--link">
+          <a @click="redirect('/metamask-guide')">First time using Metamask?</a>
+        </div>
       </div>
     </v-card>
   </v-dialog>
@@ -93,6 +96,17 @@ export default class ConnectWalletModal extends Vue {
   connectToWallet(item: WalletInterface): void {
     this.$emit('onSelectWallet', item)
   }
+
+  /**
+   * Redirect to page
+   *
+   * @param   {string}  val
+   *
+   * @return  {void}
+   */
+  redirect(val: string): void {
+    window.open(val, '_blank')
+  }
 }
 </script>
 
@@ -107,5 +121,10 @@ export default class ConnectWalletModal extends Vue {
 }
 .connectwallet--container {
   background: linear-gradient(90deg, #8d00ff 0%, #392ef7 100%) !important;
+}
+
+.metamask__guide--link {
+  font-size: 14px;
+  padding-top: 10px;
 }
 </style>
