@@ -105,8 +105,7 @@ export default class ConnectWalletModal extends Vue {
    * @return  {void}
    */
   redirect(val: string): void {
-    const route = this.$router.resolve({ path: val })
-    window.open(route.href, '_blank')
+    window.open(val, '_blank')
   }
 }
 </script>
