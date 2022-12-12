@@ -10,7 +10,7 @@
     <!-- handle wallet logic -->
     <WalletHandler
       :wallet="selectedWallet"
-      :disconnectWalletTimestamp="disconnectWalletTimestamp"
+      :disconnect-wallet-timestamp="disconnectWalletTimestamp"
       @onClearWallet="onClearWallet"
     />
 
