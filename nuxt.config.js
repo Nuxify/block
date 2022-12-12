@@ -87,6 +87,7 @@ export default {
     '@nuxtjs/stylelint-module',
     '@nuxtjs/vuetify',
     'vue-toastification/nuxt',
+    'nuxt-gsap-module',
   ],
   /*
    ** Nuxt.js modules
@@ -147,6 +148,13 @@ export default {
     closeButton: 'button',
     icon: true,
     rtl: false,
+  },
+  gsap: {
+    /* Module Options */
+    extraPlugins: {
+      flip: true,
+      scrollTrigger: true,
+    },
   },
   /*
    ** vuetify module configuration

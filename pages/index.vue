@@ -1,7 +1,47 @@
 <template>
   <v-container class="home__container mx-auto">
     <v-row justify="center" align="center">
-      <v-img src="/icon.png" class="mt-10" contain height="300" width="300" />
+      <!-- Sample animation only (delete if not needed) -->
+      <v-img
+        v-gsap.to="{
+          rotation: 360,
+          x: 0,
+          duration: 2,
+        }"
+        src="/icon.png"
+        class="mt-10"
+        contain
+        height="300"
+        width="300"
+      />
+
+      <v-img
+        v-gsap.from="{
+          opacity: 0,
+          y: 200,
+          duration: 2,
+        }"
+        src="/icon.png"
+        class="mt-10"
+        contain
+        height="300"
+        width="300"
+      />
+
+      <v-img
+        v-gsap.fromTo="[
+          { opacity: 0, y: -350 },
+          { opacity: 1, y: 0, duration: 3 },
+        ]"
+        src="/icon.png"
+        class="mt-10"
+        contain
+        height="300"
+        width="300"
+      />
+
+      <v-card width="100" height="100" color="primary" class="box"> </v-card>
+      <v-btn @click="rotateAnimate"> Rotate Animate </v-btn>
     </v-row>
   </v-container>
 </template>
@@ -36,6 +76,15 @@ export default class Index extends Vue {
         console.log('web3 wallet address:', this.walletAddress)
       }
     }, 1000)
+  }
+
+  /**
+   * Rotate animation
+   *
+   * @return  {void}
+   */
+  rotateAnimate(): void {
+    this.$gsap.to('.box', { rotation: 27, x: 100, duration: 1 })
   }
 
   mounted(): void {
