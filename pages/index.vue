@@ -2,10 +2,24 @@
   <v-container fluid class="home__container mx-auto">
     <v-row no-gutters class="justify-center px-5">
       <v-col cols="12">
-        <h1 class="text-center">{{ greetingMessage }}</h1>
+        <h1
+          v-gsap.from="{
+            opacity: 0,
+            y: -100,
+            duration: 1,
+          }"
+          class="text-center"
+        >
+          {{ greetingMessage }}
+        </h1>
       </v-col>
       <v-col cols="12" sm="10" md="8" lg="5" xl="5">
         <div
+          v-gsap.from="{
+            opacity: 0,
+            y: -100,
+            duration: 1,
+          }"
           class="d-flex"
           :class="$vuetify.breakpoint.xsOnly ? 'flex-column' : ''"
         >
