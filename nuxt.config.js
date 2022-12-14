@@ -91,6 +91,7 @@ export default {
     { src: '~/plugins/repository' },
     { src: '~/plugins/components/icons' },
     { src: '~/plugins/web3' },
+    { src: '~/plugins/theme' },
   ],
   /*
    ** Nuxt.js dev-modules
