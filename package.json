@@ -33,6 +33,7 @@
     "@types/jest": "^26.0.15",
     "@web3-onboard/injected-wallets": "^2.4.0",
     "@web3-onboard/vue": "^2.4.1",
+    "@web3-onboard/walletconnect": "^2.2.2",
     "babel-core": "^7.0.0-bridge.0",
     "ethers": "^5.5.3",
     "nuxt": "^2.15.4",

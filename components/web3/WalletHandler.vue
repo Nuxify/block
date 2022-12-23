@@ -6,6 +6,7 @@
 import { Component, Vue, namespace, Prop, Watch } from 'nuxt-property-decorator'
 import Onboard from '@web3-onboard/core'
 import injectedModule from '@web3-onboard/injected-wallets'
+import walletConnectModule from '@web3-onboard/walletconnect'
 
 const WEB3_STORE = namespace('web3')
 
@@ -56,9 +57,10 @@ export default class WalletHandler extends Vue {
   async connectToWallet(): Promise<void> {
     try {
       const injected = injectedModule()
+      const walletConnect = walletConnectModule()
 
       const onboard = Onboard({
-        wallets: [injected],
+        wallets: [injected, walletConnect],
         chains: [
           {
             id: '0x1',
@@ -73,6 +75,12 @@ export default class WalletHandler extends Vue {
             rpcUrl: `https://goerli.infura.io/v3`,
           },
         ],
+        appMetadata: {
+          // Change base on the project content
+          name: 'Block Template App',
+          icon: '/favicon.ico',
+          description: 'An Block template app',
+        },
       })
 
       this.wallets = await onboard.connectWallet()
