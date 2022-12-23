@@ -4,15 +4,8 @@
     <nuxt />
     <Footer />
 
-    <!-- Connect wallet modal -->
-    <ConnectWalletModal @onSelectWallet="onSelectWallet" />
-
     <!-- handle wallet logic -->
-    <WalletHandler
-      :wallet="selectedWallet"
-      :disconnect-wallet-timestamp="disconnectWalletTimestamp"
-      @onClearWallet="onClearWallet"
-    />
+    <WalletHandler :disconnect-wallet-timestamp="disconnectWalletTimestamp" />
 
     <DownloadMetamaskDialog />
 
@@ -37,25 +30,13 @@
 import { Component, Vue, namespace, Watch } from 'nuxt-property-decorator'
 import { Footer } from '~/components/footer'
 import { Header } from '~/components/header'
-import {
-  ConnectWalletModal,
-  DownloadMetamaskDialog,
-  WalletHandler,
-} from '~/components/web3'
+import { DownloadMetamaskDialog, WalletHandler } from '~/components/web3'
 import { AlertInterface } from '~/store/global/state.types'
 
 const GLOBAL_STORE = namespace('global')
 
-interface WalletInterface {
-  name?: string
-  logo?: string
-  provider: string
-  css: string
-}
-
 @Component({
   components: {
-    ConnectWalletModal,
     DownloadMetamaskDialog,
     Header,
     Footer,
@@ -70,13 +51,6 @@ export default class Default extends Vue {
   connect: boolean = false
   disconnectWalletTimestamp: number = 0
 
-  selectedWallet: WalletInterface = {
-    name: '',
-    logo: '',
-    provider: '',
-    css: '',
-  }
-
   @Watch('global_alert')
   onAlertChange(): void {
     if (this.global_alert.state) {
@@ -88,32 +62,6 @@ export default class Default extends Vue {
         this.global_set_alert({ state: false })
       }, this.global_alert.timeout)
     }
-  }
-
-  /**
-   * Clear wallet event
-   *
-   * @return  {void}
-   */
-  onClearWallet(): void {
-    this.selectedWallet = {
-      name: '',
-      logo: '',
-      provider: '',
-      css: '',
-    }
-  }
-
-  /**
-   * Select wallet connection
-   *
-   * @param   {WalletInterface}  wallet
-   * @param   {boolean}          connection
-   *
-   * @return  {void}
-   */
-  onSelectWallet(wallet: WalletInterface): void {
-    this.selectedWallet = wallet
   }
 
   /**

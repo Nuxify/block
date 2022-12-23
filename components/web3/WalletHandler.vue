@@ -4,18 +4,16 @@
 
 <script lang="ts">
 import { Component, Vue, namespace, Prop, Watch } from 'nuxt-property-decorator'
+import Onboard from '@web3-onboard/core'
+import injectedModule from '@web3-onboard/injected-wallets'
 
 const WEB3_STORE = namespace('web3')
 
-interface WalletInterface {
-  name?: string
-  logo?: string
-  provider: string
-  css: string
-}
-
 @Component
 export default class WalletHandler extends Vue {
+  @WEB3_STORE.State('connectWalletDialog')
+  web3_connect_wallet_dialog!: boolean
+
   @WEB3_STORE.Action('setWalletAddress') web3_set_wallet_address!: (
     payload: string
   ) => void
@@ -26,15 +24,10 @@ export default class WalletHandler extends Vue {
   @WEB3_STORE.Action('setDownloadMetamaskDialog')
   web3_set_download_metamask_dialog!: (payload: boolean) => void
 
-  @Prop({ default: 0 }) disconnectWalletTimestamp!: number
-  @Prop({ default: {} as WalletInterface }) wallet!: WalletInterface
+  @WEB3_STORE.Action('setConnectWalletDialog')
+  web3_set_connect_wallet_dialog!: (payload: boolean) => void
 
-  @Watch('wallet', { immediate: true, deep: true })
-  onWalletChange(val: WalletInterface): void {
-    if (val.provider.length > 0) {
-      this.connectToWallet(val)
-    }
-  }
+  @Prop({ default: 0 }) disconnectWalletTimestamp!: number
 
   @Watch('disconnectWalletTimestamp')
   onDisconnectWalletWalletTimestamp(val: number): void {
@@ -43,96 +36,115 @@ export default class WalletHandler extends Vue {
     }
   }
 
+  @Watch('web3_connect_wallet_dialog', { immediate: true, deep: true })
+  onConnectWallet(val: boolean): void {
+    if (val) {
+      this.connectToWallet()
+    }
+
+    // To open the connect wallet dialog again after closing it
+    this.web3_set_connect_wallet_dialog(false)
+  }
+
+  wallets: any
+
   /**
-   * Connect to wallet
-   *
-   * @param   {WalletInterface<void>}  wallet
+   * Connect wallet
    *
    * @return  {Promise<void>}
    */
-  async connectToWallet(wallet: WalletInterface): Promise<void> {
-    switch (wallet.provider) {
-      case 'metamask':
-        try {
-          const accounts: string[] = await (window as any).ethereum.request({
-            method: 'eth_requestAccounts',
-          })
+  async connectToWallet(): Promise<void> {
+    try {
+      const injected = injectedModule()
 
-          // init global web3
-          this.$web3.initWeb3Provider((window as any).ethereum)
+      const onboard = Onboard({
+        wallets: [injected],
+        chains: [
+          {
+            id: '0x1',
+            token: 'ETH',
+            label: 'Ethereum Mainnet',
+            rpcUrl: 'https://mainnet.infura.io/v3',
+          },
+          {
+            id: '0x5',
+            token: 'GoerliETH',
+            label: 'Goerli',
+            rpcUrl: `https://goerli.infura.io/v3`,
+          },
+        ],
+      })
 
-          // check and switch network
-          this.switchMetamaskNetwork()
+      this.wallets = await onboard.connectWallet()
 
-          // get wallet address
-          const [account] = accounts
-          this.web3_set_wallet_address(account)
+      if (!this.wallets[0]) {
+        return
+      }
+      // set wallet address
+      this.web3_set_wallet_address(this.wallets[0].accounts[0].address)
 
-          // save web3 flags
-          this.saveWeb3TrackingFlags(wallet.provider)
+      this.$web3.initWeb3Provider((window as any).ethereum)
+
+      this.switchMetamaskNetwork()
+
+      // save web3 flags
+      this.saveWeb3TrackingFlags(this.wallets[0].label)
+
+      console.log('wallets: ', this.wallets)
+    } catch (error) {
+      const { message } = error as Error
+
+      if (
+        message.includes('denied') ||
+        message.includes('User rejected the request')
+      ) {
+        this.$toast.error('You cancelled the transaction')
+      }
+      // for metamask
+      else if (this.wallets[0].label === 'metamask') {
+        // for mobile
+        if (this.$vuetify.breakpoint.smAndDown) {
           this.global_set_connect_wallet_dialog(false)
-        } catch (error) {
-          const { message } = error as Error
-
-          if (
-            message.includes('denied') ||
-            message.includes('User rejected the request')
-          ) {
-            this.$toast.error('You cancelled the transaction')
-          }
-          // for metamask
-          else if (wallet.provider === 'metamask') {
-            // for mobile
-            if (this.$vuetify.breakpoint.smAndDown) {
-              this.global_set_connect_wallet_dialog(false)
-              this.web3_set_download_metamask_dialog(true)
-            }
-            // for web
-            else {
-              this.clearWeb3TrackingFlags()
-              this.$router.push('/metamask-guide')
-            }
-          }
-
-          this.clearWeb3TrackingFlags()
-          return
+          this.web3_set_download_metamask_dialog(true)
         }
+        // for web
+        else {
+          this.clearWeb3TrackingFlags()
+          this.$router.push('/metamask-guide')
+        }
+      }
 
-        // subscribe to accounts change
-        ;(window as any).ethereum.on(
-          'accountsChanged',
-          (accounts: string[]) => {
-            if (accounts.length === 0) {
-              this.clearWeb3TrackingFlags()
-
-              alert('Wallet successfully disconnected')
-              return
-            }
-
-            this.clearWeb3TrackingFlags()
-            alert('Please connect your wallet again.')
-            location.reload()
-          }
-        )
-
-        // subscribe to chainId change
-        ;(window as any).ethereum.on('chainChanged', (chainId: number) => {
-          console.log('chainId', chainId)
-          location.reload()
-        })
-
-        // subscribe to session disconnection
-        ;(window as any).ethereum.on(
-          'disconnect',
-          (code: number, reason: string) => {
-            console.log('disconnect', code, reason)
-          }
-        )
-        break
-
-      default:
-        this.$toast.error('Cannot connect to wallet')
+      this.clearWeb3TrackingFlags()
+      return
     }
+
+    // subscribe to accounts change
+    ;(window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
+      if (accounts.length === 0) {
+        this.clearWeb3TrackingFlags()
+
+        alert('Wallet successfully disconnected')
+        return
+      }
+
+      this.clearWeb3TrackingFlags()
+      alert('Please connect your wallet again.')
+      location.reload()
+    })
+
+    // subscribe to chainId change
+    ;(window as any).ethereum.on('chainChanged', (chainId: number) => {
+      console.log('chainId', chainId)
+      location.reload()
+    })
+
+    // subscribe to session disconnection
+    ;(window as any).ethereum.on(
+      'disconnect',
+      (code: number, reason: string) => {
+        console.log('disconnect', code, reason)
+      }
+    )
 
     // get signer
     const signer = this.$web3.getWeb3Provider().getSigner()
@@ -252,11 +264,7 @@ export default class WalletHandler extends Vue {
       web3ConnectCache === 'injected' &&
       walletProvider !== null
     ) {
-      if (walletProvider === 'metamask')
-        this.connectToWallet({
-          provider: walletProvider,
-          css: 'metamask--container',
-        })
+      this.connectToWallet()
     }
   }
 }
