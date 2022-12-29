@@ -56,6 +56,7 @@ module.exports = {
         '*.repository.ts',
         'test/**/*',
         '*.d.ts',
+        'theme.ts',
         // window.ethereum related
         'plugins/web3.ts',
         'plugins/utils.ts',
