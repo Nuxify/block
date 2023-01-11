@@ -31,6 +31,7 @@
     "@nuxtjs/axios": "^5.11.0",
     "@nuxtjs/pwa": "^3.0.0-0",
     "@types/jest": "^26.0.15",
+    "@web3-onboard/core": "^2.12.1",
     "@web3-onboard/injected-wallets": "^2.4.0",
     "@web3-onboard/vue": "^2.4.1",
     "@web3-onboard/walletconnect": "^2.2.2",

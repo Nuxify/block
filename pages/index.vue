@@ -2,24 +2,12 @@
   <v-container fluid class="home__container mx-auto">
     <v-row no-gutters class="justify-center px-5">
       <v-col cols="12">
-        <h1
-          v-gsap.from="{
-            opacity: 0,
-            y: -100,
-            duration: 1,
-          }"
-          class="text-center"
-        >
+        <h1 class="text-center">
           {{ greetingMessage }}
         </h1>
       </v-col>
       <v-col cols="12" sm="10" md="8" lg="5" xl="5">
         <div
-          v-gsap.from="{
-            opacity: 0,
-            y: -100,
-            duration: 1,
-          }"
           class="d-flex"
           :class="$vuetify.breakpoint.xsOnly ? 'flex-column' : ''"
         >
@@ -60,10 +48,12 @@ const GLOBAL_STORE = namespace('global')
   },
 })
 export default class Index extends Vue {
-  @WEB3_STORE.State('walletAddress') web3_wallet_address!: string
   @GLOBAL_STORE.State('alert') global_alert!: AlertInterface
   @GLOBAL_STORE.Action('setAlert')
   global_set_alert!: (payload: AlertInterface) => void
+
+  @WEB3_STORE.State('connectedPrimaryAddress')
+  web3_connected_primary_address!: string | null
 
   walletAddress: string = ''
   message: string = ''
@@ -71,14 +61,13 @@ export default class Index extends Vue {
 
   isLoading: boolean = false
 
-  @Watch('web3_wallet_address')
+  @Watch('web3_connected_primary_address')
   onWalletAddressChange(val: string): void {
     setTimeout(() => {
-      if (val.length > 0) {
-        this.walletAddress = this.web3_wallet_address
+      if (val) {
         this.getGreeting()
 
-        console.log('web3 wallet address:', this.walletAddress)
+        console.log('web3 wallet address:', this.web3_connected_primary_address)
       }
     }, 1000)
   }
@@ -106,8 +95,16 @@ export default class Index extends Vue {
     this.isLoading = true
 
     try {
+      if (this.web3_connected_primary_address === null) {
+        return
+      }
+      const signer = this.$web3
+        .getWeb3Provider()
+        .getSigner(this.web3_connected_primary_address)
+
       const tx = await this.$web3
         .getGreeterContract()
+        .connect(signer)
         .functions.setGreeting(this.message)
 
       if (tx.hash.length > 0) {

@@ -1,13 +1,11 @@
 <template>
   <v-app id="app" :style="$theme.variables">
-    <Header @disconnectWallet="disconnectWallet" />
+    <Header />
     <nuxt />
     <Footer />
 
-    <!-- handle wallet logic -->
-    <WalletHandler :disconnect-wallet-timestamp="disconnectWalletTimestamp" />
-
-    <DownloadMetamaskDialog />
+    <!-- required to handle web3Onboard -->
+    <WalletHandler />
 
     <!-- Alert pop-up -->
     <div class="alert--container">
@@ -30,14 +28,13 @@
 import { Component, Vue, namespace, Watch } from 'nuxt-property-decorator'
 import { Footer } from '~/components/footer'
 import { Header } from '~/components/header'
-import { DownloadMetamaskDialog, WalletHandler } from '~/components/web3'
+import { WalletHandler } from '~/components/web3'
 import { AlertInterface } from '~/store/global/state.types'
 
 const GLOBAL_STORE = namespace('global')
 
 @Component({
   components: {
-    DownloadMetamaskDialog,
     Header,
     Footer,
     WalletHandler,
@@ -47,9 +44,6 @@ export default class Default extends Vue {
   @GLOBAL_STORE.State('alert') global_alert!: AlertInterface
   @GLOBAL_STORE.Action('setAlert')
   global_set_alert!: (payload: AlertInterface) => void
-
-  connect: boolean = false
-  disconnectWalletTimestamp: number = 0
 
   @Watch('global_alert')
   onAlertChange(): void {
@@ -62,15 +56,6 @@ export default class Default extends Vue {
         this.global_set_alert({ state: false })
       }, this.global_alert.timeout)
     }
-  }
-
-  /**
-   * Disconnect wallet event
-   *
-   * @return  {<void>}
-   */
-  disconnectWallet(): void {
-    this.disconnectWalletTimestamp = Math.floor(Date.now() / 1000)
   }
 }
 </script>

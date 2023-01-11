@@ -1,9 +1,7 @@
 import { StateInterface } from './state.types'
 
 const State: StateInterface = {
-  connectWalletDialog: false,
-  downloadMetamaskDialog: false,
-  walletAddress: '',
+  connectedPrimaryAddress: null,
 }
 
 export default () => State

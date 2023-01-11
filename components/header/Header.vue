@@ -1,7 +1,6 @@
 <template>
   <div class="header__container">
     <v-app-bar
-      app
       hide-on-scroll
       height="80"
       :class="[{ 'px-12': $vuetify.breakpoint.mdAndUp }]"
@@ -46,25 +45,15 @@
       </v-btn>
       <div v-if="$vuetify.breakpoint.mdAndUp">
         <v-btn
-          v-if="!web3_wallet_address"
+          v-if="!web3_connected_primary_address"
           dark
           tile
           height="44"
           width="159"
           class="body-2 text-none primary"
-          @click="web3_set_connect_wallet_dialog(true)"
-          >Connect Wallet
-        </v-btn>
-        <v-btn
-          v-else
-          dark
-          tile
-          height="44"
-          width="159"
-          class="body-2 text-none primary"
-          @click="disconnectWallet"
+          @click="connectWallet"
         >
-          {{ walletAddress }}
+          Connect Wallet
         </v-btn>
       </div>
     </v-app-bar>
@@ -109,31 +98,16 @@
         </v-list>
         <v-row no-gutters class="align-center connect__wallet--container px-4">
           <v-btn
-            v-if="!web3_wallet_address"
+            v-if="!web3_connected_primary_address"
             dark
             tile
             block
             height="44"
             width="auto"
             class="body-2 text-none primary"
-            @click="web3_set_connect_wallet_dialog(true)"
+            @click="connectWallet"
           >
             Connect Wallet
-          </v-btn>
-          <v-btn
-            v-else
-            dark
-            depressed
-            tile
-            block
-            height="44"
-            width="auto"
-            class="body-2 text-none primary"
-            @click="disconnectWallet"
-          >
-            <div>
-              <h1 class="body-2">{{ walletAddress }}</h1>
-            </div>
           </v-btn>
         </v-row>
       </div>
@@ -154,10 +128,8 @@ interface Item {
 
 @Component
 export default class Header extends Vue {
-  @WEB3_STORE.Action('setConnectWalletDialog')
-  web3_set_connect_wallet_dialog!: (payload: boolean) => void
-
-  @WEB3_STORE.State('walletAddress') web3_wallet_address!: string
+  @WEB3_STORE.State('connectedPrimaryAddress')
+  web3_connected_primary_address!: string | null
 
   drawer: boolean = false
 
@@ -189,22 +161,25 @@ export default class Header extends Vue {
     return this.$route?.name
   }
 
-  get walletAddress(): string {
-    return `${this.web3_wallet_address.substring(
-      0,
-      5
-    )}...${this.web3_wallet_address.substring(
-      this.web3_wallet_address.length - 4
-    )}`
-  }
-
   /**
-   * Disconnect wallet
+   * Connect wallet using web3Onboard
    *
-   * @return  {<void>}
+   * @return  {<Promise><void>}
    */
-  disconnectWallet(): void {
-    this.$emit('disconnectWallet')
+  async connectWallet(): Promise<void> {
+    try {
+      const wallets = await this.$web3.getWeb3Onboard().connectWallet()
+
+      if (wallets[0]) {
+        const connectedWallets = wallets.map(({ label }) => label)
+        localStorage.setItem(
+          'connectedWallets',
+          JSON.stringify(connectedWallets)
+        )
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   /**

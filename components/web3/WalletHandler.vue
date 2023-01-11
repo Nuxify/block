@@ -3,159 +3,70 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, namespace, Prop, Watch } from 'nuxt-property-decorator'
+import { Component, Vue, namespace } from 'nuxt-property-decorator'
 import Onboard from '@web3-onboard/core'
 import injectedModule from '@web3-onboard/injected-wallets'
-import walletConnectModule from '@web3-onboard/walletconnect'
 
 const WEB3_STORE = namespace('web3')
 
 @Component
 export default class WalletHandler extends Vue {
-  @WEB3_STORE.State('connectWalletDialog')
-  web3_connect_wallet_dialog!: boolean
+  @WEB3_STORE.Action('setConnectedPrimaryAddress')
+  web3_set_connected_primary_address!: (payload: string | null) => void
 
-  @WEB3_STORE.Action('setWalletAddress') web3_set_wallet_address!: (
-    payload: string
-  ) => void
-
-  @WEB3_STORE.Action('setConnectWalletDialog')
-  global_set_connect_wallet_dialog!: (payload: boolean) => void
-
-  @WEB3_STORE.Action('setDownloadMetamaskDialog')
-  web3_set_download_metamask_dialog!: (payload: boolean) => void
-
-  @WEB3_STORE.Action('setConnectWalletDialog')
-  web3_set_connect_wallet_dialog!: (payload: boolean) => void
-
-  @Prop({ default: 0 }) disconnectWalletTimestamp!: number
-
-  @Watch('disconnectWalletTimestamp')
-  onDisconnectWalletWalletTimestamp(val: number): void {
-    if (val > 0) {
-      this.disconnectWallet()
-    }
-  }
-
-  @Watch('web3_connect_wallet_dialog', { immediate: true, deep: true })
-  onConnectWallet(val: boolean): void {
-    if (val) {
-      this.connectToWallet()
-    }
-
-    // To open the connect wallet dialog again after closing it
-    this.web3_set_connect_wallet_dialog(false)
-  }
-
-  wallets: any
+  @WEB3_STORE.State('connectedPrimaryAddress')
+  web3_connected_primary_address!: string | null
 
   /**
-   * Connect wallet
+   * Auto reconnect last connected wallet
    *
    * @return  {Promise<void>}
    */
-  async connectToWallet(): Promise<void> {
+  async autoConnectWallet(): Promise<void> {
     try {
-      const injected = injectedModule()
-      const walletConnect = walletConnectModule()
+      const previouslyConnectedWallets = JSON.parse(
+        `${localStorage.getItem('connectedWallets')}`
+      )
 
-      const onboard = Onboard({
-        wallets: [injected, walletConnect],
-        chains: [
-          {
-            id: '0x1',
-            token: 'ETH',
-            label: 'Ethereum Mainnet',
-            rpcUrl: 'https://mainnet.infura.io/v3',
+      if (previouslyConnectedWallets) {
+        // Connect the most recently connected wallet (first in the array)
+        // await this.$web3.getWeb3Onboard().connectWallet({
+        //   autoSelect: previouslyConnectedWallets[0],
+        // })
+
+        // You can also auto connect "silently" and disable all onboard modals to avoid them flashing on page load
+        await this.$web3.getWeb3Onboard().connectWallet({
+          autoSelect: {
+            disableModals: true,
+            label: previouslyConnectedWallets[0],
           },
-          {
-            id: '0x5',
-            token: 'GoerliETH',
-            label: 'Goerli',
-            rpcUrl: `https://goerli.infura.io/v3`,
-          },
-        ],
-        appMetadata: {
-          // Change base on the project content
-          name: 'Block Template App',
-          icon: '/favicon.ico',
-          description: 'An Block template app',
-        },
-      })
+        })
 
-      this.wallets = await onboard.connectWallet()
-
-      if (!this.wallets[0]) {
-        return
+        // OR - loop through and initiate connection for all previously connected wallets
+        // note: This UX might not be great as the user may need to login to each wallet one after the other
+        // for (walletLabel in previouslyConnectedWallets) {
+        //   await onboard.connectWallet({ autoSelect: walletLabel })
+        // }
       }
-      // set wallet address
-      this.web3_set_wallet_address(this.wallets[0].accounts[0].address)
-
-      this.$web3.initWeb3Provider((window as any).ethereum)
-
-      this.switchMetamaskNetwork()
-
-      // save web3 flags
-      this.saveWeb3TrackingFlags(this.wallets[0].label)
-
-      console.log('wallets: ', this.wallets)
     } catch (error) {
-      const { message } = error as Error
+      console.error(error)
+    }
+  }
 
-      if (
-        message.includes('denied') ||
-        message.includes('User rejected the request')
-      ) {
-        this.$toast.error('You cancelled the transaction')
-      }
-      // for metamask
-      else if (this.wallets[0].label === 'metamask') {
-        // for mobile
-        if (this.$vuetify.breakpoint.smAndDown) {
-          this.global_set_connect_wallet_dialog(false)
-          this.web3_set_download_metamask_dialog(true)
-        }
-        // for web
-        else {
-          this.clearWeb3TrackingFlags()
-          this.$router.push('/metamask-guide')
-        }
-      }
-
-      this.clearWeb3TrackingFlags()
+  /**
+   * Initialize smart contracts
+   *
+   * @return  {<Promise><void>}
+   */
+  initializeContracts(): void {
+    if (this.web3_connected_primary_address === null) {
       return
     }
 
-    // subscribe to accounts change
-    ;(window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
-      if (accounts.length === 0) {
-        this.clearWeb3TrackingFlags()
-
-        alert('Wallet successfully disconnected')
-        return
-      }
-
-      this.clearWeb3TrackingFlags()
-      alert('Please connect your wallet again.')
-      location.reload()
-    })
-
-    // subscribe to chainId change
-    ;(window as any).ethereum.on('chainChanged', (chainId: number) => {
-      console.log('chainId', chainId)
-      location.reload()
-    })
-
-    // subscribe to session disconnection
-    ;(window as any).ethereum.on(
-      'disconnect',
-      (code: number, reason: string) => {
-        console.log('disconnect', code, reason)
-      }
-    )
-
     // get signer
-    const signer = this.$web3.getWeb3Provider().getSigner()
+    const signer = this.$web3
+      .getWeb3Provider()
+      .getSigner(this.web3_connected_primary_address)
 
     // initialize contract
     this.$web3.initGreeterContract(
@@ -165,115 +76,71 @@ export default class WalletHandler extends Vue {
     )
   }
 
-  /**
-   * Switch metamask network
-   *
-   * @return  {Promise<void>}
-   */
-  async switchMetamaskNetwork(): Promise<void> {
-    if (this.$config.debug) {
-      try {
-        // switch to testnet bsc
-        await (window as any).ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x5' }], // write the chainId here
-        })
-      } catch (error) {
-        // add network to metamask (remove if metamask default networks)
-        await (window as any).ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [
-            {
-              chainId: '0x61',
-              chainName: 'BSC Testnet',
-              nativeCurrency: {
-                symbol: 'BNB',
-                decimals: 18,
-              },
-              rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
-              blockExplorerUrls: ['https://testnet.bscscan.com'],
-            },
-          ],
-        })
-      }
-    } else {
-      try {
-        // switch to mainnet ethereum
-        await (window as any).ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x1' }], // write the chainId here
-        })
-      } catch (error) {
-        const { message } = error as Error
+  created(): void {
+    const injected = injectedModule()
 
-        if (
-          message.includes('denied') ||
-          message.includes('User rejected the request')
-        ) {
-          this.$toast.error('You cancelled the transaction')
-        } else {
-          this.$toast.error(message)
+    // initialize web3Onboard
+    const web3Onboard = Onboard({
+      wallets: [injected],
+      chains: [
+        {
+          id: this.$config.goerliChainId,
+          token: this.$config.goerliToken,
+          label: this.$config.goerliLabel,
+          rpcUrl: this.$config.goerliRPC,
+        },
+      ],
+      appMetadata: {
+        name: 'Ballies Game Portal',
+        icon: '/icon.png',
+        logo: '/icon.png',
+        description:
+          'Enter the Metacourt. Connect to view Ballie assets and download the game.',
+        recommendedInjectedWallets: [
+          { name: 'MetaMask', url: 'https://metamask.io' },
+        ],
+      },
+    })
+
+    this.$web3.initWeb3Onboard(web3Onboard)
+
+    // auto-reconnect on reload
+    this.autoConnectWallet()
+
+    // wallet state listener
+    const wallets = this.$web3.getWeb3Onboard().state.select('wallets')
+    wallets.subscribe((newWalletState) => {
+      if (newWalletState[0]) {
+        // initialize contracts once (without signer as it can be changing)
+        if (this.web3_connected_primary_address === null) {
+          this.web3_set_connected_primary_address(
+            newWalletState[0].accounts[0].address
+          )
+
+          // this.initializeContracts()
+          console.log('initialized contracts')
         }
+        // update to latest selected provider
+        this.$web3.initWeb3Provider(newWalletState[0].provider)
 
-        this.clearWeb3TrackingFlags()
+        // get primary wallet and provider
+        const [primaryWallet] = this.$web3.getWeb3Onboard().state.get().wallets
+        this.web3_set_connected_primary_address(
+          primaryWallet.accounts[0].address
+        )
+        console.log(
+          'primary wallet address: ',
+          primaryWallet.accounts[0].address,
+          this.$web3.getWeb3Provider()
+        )
+
+        this.initializeContracts()
+      } else if (this.web3_connected_primary_address) {
+        // if newWalletState is empty and lastConnectedWallet is not null, meaning disconnected
+        localStorage.removeItem('connectedWallets')
+        this.web3_set_connected_primary_address(null)
       }
-    }
-  }
-
-  /**
-   * Clear web3 tracking flags when locked
-   *
-   * @return  {void}
-   */
-  clearWeb3TrackingFlags(): void {
-    // clear tracking flags
-    localStorage.removeItem('web3_connect_cached_provider')
-    localStorage.removeItem('wallet_provider')
-
-    // clear state
-    this.web3_set_wallet_address('')
-
-    // emit clear state
-    this.$emit('onClearWallet')
-  }
-
-  /**
-   * Disconnect wallet from emit
-   *
-   * @return  {<void>}
-   */
-  disconnectWallet(): void {
-    if (confirm('Are you sure you want to disconnect this wallet?')) {
-      this.clearWeb3TrackingFlags()
-    }
-  }
-
-  /**
-   * Save web3 tracking flags from localstorage
-   *
-   * @param   {string}  provider
-   *
-   * @return  }
-   */
-  saveWeb3TrackingFlags(provider: string) {
-    localStorage.setItem('web3_connect_cached_provider', 'injected')
-    localStorage.setItem('wallet_provider', provider)
-  }
-
-  mounted(): void {
-    // check if account already exposed
-    const web3ConnectCache = localStorage.getItem(
-      'web3_connect_cached_provider'
-    )
-    const walletProvider = localStorage.getItem('wallet_provider')
-
-    if (
-      web3ConnectCache !== null &&
-      web3ConnectCache === 'injected' &&
-      walletProvider !== null
-    ) {
-      this.connectToWallet()
-    }
+    })
   }
 }
 </script>
