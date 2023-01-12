@@ -1,5 +1,3 @@
 export interface StateInterface {
-  connectWalletDialog: boolean
-  downloadMetamaskDialog: boolean
-  walletAddress: string
+  connectedPrimaryAddress: string | null
 }

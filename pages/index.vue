@@ -2,7 +2,9 @@
   <v-container fluid class="home__container mx-auto">
     <v-row no-gutters class="justify-center px-5">
       <v-col cols="12">
-        <h1 class="text-center">{{ greetingMessage }}</h1>
+        <h1 class="text-center">
+          {{ greetingMessage }}
+        </h1>
       </v-col>
       <v-col cols="12" sm="10" md="8" lg="5" xl="5">
         <div
@@ -46,25 +48,23 @@ const GLOBAL_STORE = namespace('global')
   },
 })
 export default class Index extends Vue {
-  @WEB3_STORE.State('walletAddress') web3_wallet_address!: string
   @GLOBAL_STORE.State('alert') global_alert!: AlertInterface
   @GLOBAL_STORE.Action('setAlert')
   global_set_alert!: (payload: AlertInterface) => void
 
-  walletAddress: string = ''
+  @WEB3_STORE.State('connectedPrimaryAddress')
+  web3_connected_primary_address!: string | null
+
   message: string = ''
   greetingMessage: string = '<Block>'
 
   isLoading: boolean = false
 
-  @Watch('web3_wallet_address')
+  @Watch('web3_connected_primary_address')
   onWalletAddressChange(val: string): void {
     setTimeout(() => {
-      if (val.length > 0) {
-        this.walletAddress = this.web3_wallet_address
+      if (val) {
         this.getGreeting()
-
-        console.log('web3 wallet address:', this.walletAddress)
       }
     }, 1000)
   }
@@ -75,7 +75,10 @@ export default class Index extends Vue {
    * @return  {Promise<void>}
    */
   async getGreeting(): Promise<void> {
-    this.greetingMessage = await this.$web3.getGreeterContract().greet()
+    this.greetingMessage = await this.$web3
+      .getGreeterContract()
+      .connect(this.$web3.getWeb3Provider())
+      .greet()
   }
 
   /**
@@ -89,11 +92,22 @@ export default class Index extends Vue {
       return
     }
 
+    if (this.web3_connected_primary_address === null) {
+      this.$toast.error('Please connect your wallet')
+      return
+    }
+
     this.isLoading = true
 
     try {
+      // always get latest connected signer
+      const signer = this.$web3
+        .getWeb3Provider()
+        .getSigner(this.web3_connected_primary_address)
+
       const tx = await this.$web3
         .getGreeterContract()
+        .connect(signer)
         .functions.setGreeting(this.message)
 
       if (tx.hash.length > 0) {
@@ -111,7 +125,6 @@ export default class Index extends Vue {
 
       this.$toast.success('Successfully set greeting message')
       this.message = ''
-      this.getGreeting()
     } catch (error) {
       console.error(error)
 
@@ -126,24 +139,8 @@ export default class Index extends Vue {
       }
     }
 
+    this.getGreeting()
     this.isLoading = false
-  }
-
-  mounted(): void {
-    // print values using runtime config
-    console.log('APP_NAME', this.$config.appName)
-
-    // Alert
-    this.global_set_alert({
-      state: true,
-      message: 'Sample alert message here.',
-      variant: 'success',
-      dismiss: true,
-      timeout: 2000,
-    })
-
-    // Toast notification
-    // this.$toast.info('Hello')
   }
 }
 </script>

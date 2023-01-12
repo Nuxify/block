@@ -2,8 +2,6 @@
 
 dApp starter template using Nuxt.
 
-&nbsp;
-
 ## Installation
 
 ```
@@ -38,14 +36,22 @@ cd dist/
 npx serve
 ```
 
-&nbsp;
+## Wallets
 
-## Contributing
+We use @web3-onboard for wallet connections and management
 
-Made with ❤️ at [Nuxify](https://nuxify.tech)
+```
+References:
 
-&nbsp;
+- GitHub: https://github.com/blocknative/web3-onboard
+- Docs: https://onboard.blocknative.com/docs/modules/core
+- Adding wallets: https://onboard.blocknative.com/docs/wallets/walletconnect
+```
 
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
+## Contributing
+
+Made with ❤️ at [Nuxify](https://nuxify.tech)

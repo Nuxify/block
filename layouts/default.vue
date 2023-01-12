@@ -1,20 +1,11 @@
 <template>
   <v-app id="app">
-    <Header @disconnectWallet="disconnectWallet" />
+    <Header />
     <nuxt />
     <Footer />
 
-    <!-- Connect wallet modal -->
-    <ConnectWalletModal @onSelectWallet="onSelectWallet" />
-
-    <!-- handle wallet logic -->
-    <WalletHandler
-      :wallet="selectedWallet"
-      :disconnect-wallet-timestamp="disconnectWalletTimestamp"
-      @onClearWallet="onClearWallet"
-    />
-
-    <DownloadMetamaskDialog />
+    <!-- required to handle web3Onboard -->
+    <WalletHandler />
 
     <!-- Alert pop-up -->
     <div class="alert--container">
@@ -37,26 +28,13 @@
 import { Component, Vue, namespace, Watch } from 'nuxt-property-decorator'
 import { Footer } from '~/components/footer'
 import { Header } from '~/components/header'
-import {
-  ConnectWalletModal,
-  DownloadMetamaskDialog,
-  WalletHandler,
-} from '~/components/web3'
+import { WalletHandler } from '~/components/web3'
 import { AlertInterface } from '~/store/global/state.types'
 
 const GLOBAL_STORE = namespace('global')
 
-interface WalletInterface {
-  name?: string
-  logo?: string
-  provider: string
-  css: string
-}
-
 @Component({
   components: {
-    ConnectWalletModal,
-    DownloadMetamaskDialog,
     Header,
     Footer,
     WalletHandler,
@@ -66,16 +44,6 @@ export default class Default extends Vue {
   @GLOBAL_STORE.State('alert') global_alert!: AlertInterface
   @GLOBAL_STORE.Action('setAlert')
   global_set_alert!: (payload: AlertInterface) => void
-
-  connect: boolean = false
-  disconnectWalletTimestamp: number = 0
-
-  selectedWallet: WalletInterface = {
-    name: '',
-    logo: '',
-    provider: '',
-    css: '',
-  }
 
   @Watch('global_alert')
   onAlertChange(): void {
@@ -88,41 +56,6 @@ export default class Default extends Vue {
         this.global_set_alert({ state: false })
       }, this.global_alert.timeout)
     }
-  }
-
-  /**
-   * Clear wallet event
-   *
-   * @return  {void}
-   */
-  onClearWallet(): void {
-    this.selectedWallet = {
-      name: '',
-      logo: '',
-      provider: '',
-      css: '',
-    }
-  }
-
-  /**
-   * Select wallet connection
-   *
-   * @param   {WalletInterface}  wallet
-   * @param   {boolean}          connection
-   *
-   * @return  {void}
-   */
-  onSelectWallet(wallet: WalletInterface): void {
-    this.selectedWallet = wallet
-  }
-
-  /**
-   * Disconnect wallet event
-   *
-   * @return  {<void>}
-   */
-  disconnectWallet(): void {
-    this.disconnectWalletTimestamp = Math.floor(Date.now() / 1000)
   }
 }
 </script>
