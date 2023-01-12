@@ -27,12 +27,9 @@ declare module 'vue/types/vue' {
         onTransactionWaitForReceipt(txHash: string): Promise<boolean>
       }
     }
+
     $theme: {
       variables: object
     }
-
-    $Flip: any
-    $gsap: any
-    $ScrollTrigger: any
   }
 }
