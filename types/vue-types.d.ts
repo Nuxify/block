@@ -27,9 +27,5 @@ declare module 'vue/types/vue' {
         onTransactionWaitForReceipt(txHash: string): Promise<boolean>
       }
     }
-
-    $theme: {
-      variables: object
-    }
   }
 }
