@@ -1,6 +1,6 @@
 # Block
 
-Dapp starter template using Nuxt.
+dApp starter template using Nuxt.
 
 &nbsp;
 
