@@ -59,20 +59,9 @@ export default class WalletHandler extends Vue {
    * @return  {<Promise><void>}
    */
   initializeContracts(): void {
-    if (this.web3_connected_primary_address === null) {
-      return
-    }
-
-    // get signer
-    const signer = this.$web3
-      .getWeb3Provider()
-      .getSigner(this.web3_connected_primary_address)
-
-    // initialize contract
     this.$web3.initGreeterContract(
       this.$config.greeterContractAddress,
-      this.$config.greeterContractABI,
-      signer
+      this.$config.greeterContractABI
     )
   }
 
@@ -84,18 +73,17 @@ export default class WalletHandler extends Vue {
       wallets: [injected],
       chains: [
         {
-          id: this.$config.goerliChainId,
-          token: this.$config.goerliToken,
-          label: this.$config.goerliLabel,
-          rpcUrl: this.$config.goerliRPC,
+          id: this.$config.ethChainId,
+          token: this.$config.ethToken,
+          label: this.$config.ethLabel,
+          rpcUrl: this.$config.ethRPC,
         },
       ],
       appMetadata: {
-        name: 'Ballies Game Portal',
+        name: this.$config.appName,
         icon: '/icon.png',
         logo: '/icon.png',
-        description:
-          'Enter the Metacourt. Connect to view Ballie assets and download the game.',
+        description: this.$config.appDescription,
         recommendedInjectedWallets: [
           { name: 'MetaMask', url: 'https://metamask.io' },
         ],
@@ -117,9 +105,10 @@ export default class WalletHandler extends Vue {
             newWalletState[0].accounts[0].address
           )
 
-          // this.initializeContracts()
+          this.initializeContracts()
           console.log('initialized contracts')
         }
+
         // update to latest selected provider
         this.$web3.initWeb3Provider(newWalletState[0].provider)
 
@@ -133,10 +122,8 @@ export default class WalletHandler extends Vue {
           primaryWallet.accounts[0].address,
           this.$web3.getWeb3Provider()
         )
-
-        this.initializeContracts()
       } else if (this.web3_connected_primary_address) {
-        // if newWalletState is empty and lastConnectedWallet is not null, meaning disconnected
+        // if newWalletState is empty and connectedPrimaryAddress is not null, meaning disconnected
         localStorage.removeItem('connectedWallets')
         this.web3_set_connected_primary_address(null)
       }
@@ -144,5 +131,3 @@ export default class WalletHandler extends Vue {
   }
 }
 </script>
-
-<style></style>

@@ -63,12 +63,8 @@ export default (ctx: Context, inject: any): void => {
      *
      * @return  {ethers.Contract}
      */
-    initGreeterContract(
-      address: string,
-      abi: ethers.ContractInterface,
-      web3Signer: ethers.Signer
-    ): void {
-      greeterContract = new ethers.Contract(address, abi, web3Signer)
+    initGreeterContract(address: string, abi: ethers.ContractInterface): void {
+      greeterContract = new ethers.Contract(address, abi)
     },
 
     /// Utility functions

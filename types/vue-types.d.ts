@@ -21,8 +21,7 @@ declare module 'vue/types/vue' {
       ): ethers.providers.Web3Provider
       initGreeterContract(
         address: string,
-        abi: ethers.ContractInterface,
-        web3Signer: ethers.Signer
+        abi: ethers.ContractInterface
       ): ethers.Contract
       utils: {
         onTransactionWaitForReceipt(txHash: string): Promise<boolean>

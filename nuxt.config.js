@@ -1,12 +1,9 @@
-import { resolve } from 'path'
-
 import {
   // contract addresses
   GreeterContractAddress,
   // abis
   GreeterContractABI,
 } from './contracts/production'
-
 import {
   // staging contract addresses
   StagingGreeterContractAddress,
@@ -16,13 +13,9 @@ import {
 
 const DEBUG = process.env.NODE_ENV !== 'production'
 const APP_NAME = 'Block'
-const APP_DESCRIPTION = 'Dapp starter template using Nuxt.'
+const APP_DESCRIPTION = 'dApp starter template using Nuxt.'
 const APP_URL = 'http://localhost:3000'
 const API_URL = 'http://localhost:3000'
-
-const VUE_COMPOSITION_API_FULLPATH = resolve(
-  './node_modules/@vue/composition-api/dist/vue-composition-api.mjs'
-)
 
 export default {
   ssr: false,
@@ -81,11 +74,33 @@ export default {
         href: 'https://fonts.googleapis.com/css?family=Poppins&display=swap',
       },
     ],
+    script: [
+      {
+        type: 'text/javascript',
+        innerHTML: `
+          window.onerror = function(msg, url, line, col, error) {
+              if (
+                  msg === 'SyntaxError' &&
+                  error === "Loading chunk failed" &&
+                  !window.location.hash
+                  ) {
+                      window.location = window.location + '#refresh'
+                      window.location.reload()
+              }
+          }
+          `,
+        defer: true,
+      },
+    ],
   },
   /*
    ** Customize the progress-bar color
    */
-  loading: { color: '#fff' },
+  loading: false,
+
+  loadingIndicator: {
+    name: false,
+  },
   /*
    ** Global CSS
    */
@@ -124,12 +139,13 @@ export default {
    */
   publicRuntimeConfig: {
     appName: APP_NAME,
+    appDescription: APP_DESCRIPTION,
     debug: DEBUG,
     // rpc
-    goerliChainId: DEBUG ? '0x5' : '0x1',
-    goerliToken: DEBUG ? 'GoerliETH' : 'ETH',
-    goerliLabel: DEBUG ? 'Goerli' : 'Ethereum Mainnet',
-    goerliRPC: DEBUG
+    ethChainId: DEBUG ? '0x5' : '0x5',
+    ethToken: DEBUG ? 'GoerliETH' : 'GoerliETH',
+    ethLabel: DEBUG ? 'Goerli' : 'Goerli',
+    ethRPC: DEBUG
       ? 'https://goerli.infura.io/v3/554ccee17f164b53be1bc5cfe77fb889'
       : 'https://goerli.infura.io/v3/554ccee17f164b53be1bc5cfe77fb889',
     // contracts
@@ -197,19 +213,5 @@ export default {
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     optionsPath: './vuetify.options.js',
-  },
-  alias: {
-    '@vue/composition-api$':
-      '@vue/composition-api/dist/vue-composition-api.mjs',
-    '@vue/composition-api/dist/vue-composition-api.mjs': VUE_COMPOSITION_API_FULLPATH,
-  },
-  build: {
-    extend(config) {
-      config.module.rules.push({
-        test: /\.mjs$/,
-        include: /node_modules/,
-        type: 'javascript/auto',
-      })
-    },
   },
 }

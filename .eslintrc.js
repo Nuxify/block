@@ -67,5 +67,11 @@ module.exports = {
         '@typescript-eslint/explicit-function-return-type': ['off'],
       },
     },
+    {
+      files: ['types/vue-types.d.ts', 'plugins/web3.ts'],
+      rules: {
+        'import/named': 'off',
+      },
+    },
   ],
 }

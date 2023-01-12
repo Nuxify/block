@@ -1,4 +1,3 @@
-import WalletHandler from '../web3/WalletHandler.vue'
-import DownloadMetamaskDialog from './DownloadMetamaskDialog.vue'
+import WalletHandler from './WalletHandler.vue'
 
-export { DownloadMetamaskDialog, WalletHandler }
+export { WalletHandler }

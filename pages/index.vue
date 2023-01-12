@@ -55,7 +55,6 @@ export default class Index extends Vue {
   @WEB3_STORE.State('connectedPrimaryAddress')
   web3_connected_primary_address!: string | null
 
-  walletAddress: string = ''
   message: string = ''
   greetingMessage: string = '<Block>'
 
@@ -66,8 +65,6 @@ export default class Index extends Vue {
     setTimeout(() => {
       if (val) {
         this.getGreeting()
-
-        console.log('web3 wallet address:', this.web3_connected_primary_address)
       }
     }, 1000)
   }
@@ -78,7 +75,10 @@ export default class Index extends Vue {
    * @return  {Promise<void>}
    */
   async getGreeting(): Promise<void> {
-    this.greetingMessage = await this.$web3.getGreeterContract().greet()
+    this.greetingMessage = await this.$web3
+      .getGreeterContract()
+      .connect(this.$web3.getWeb3Provider())
+      .greet()
   }
 
   /**
@@ -92,12 +92,15 @@ export default class Index extends Vue {
       return
     }
 
+    if (this.web3_connected_primary_address === null) {
+      this.$toast.error('Please connect your wallet')
+      return
+    }
+
     this.isLoading = true
 
     try {
-      if (this.web3_connected_primary_address === null) {
-        return
-      }
+      // always get latest connected signer
       const signer = this.$web3
         .getWeb3Provider()
         .getSigner(this.web3_connected_primary_address)
@@ -122,7 +125,6 @@ export default class Index extends Vue {
 
       this.$toast.success('Successfully set greeting message')
       this.message = ''
-      this.getGreeting()
     } catch (error) {
       console.error(error)
 
@@ -137,24 +139,8 @@ export default class Index extends Vue {
       }
     }
 
+    this.getGreeting()
     this.isLoading = false
-  }
-
-  mounted(): void {
-    // print values using runtime config
-    console.log('APP_NAME', this.$config.appName)
-
-    // Alert
-    this.global_set_alert({
-      state: true,
-      message: 'Sample alert message here.',
-      variant: 'success',
-      dismiss: true,
-      timeout: 2000,
-    })
-
-    // Toast notification
-    // this.$toast.info('Hello')
   }
 }
 </script>
