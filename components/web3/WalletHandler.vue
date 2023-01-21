@@ -6,6 +6,7 @@
 import { Component, Vue, namespace } from 'nuxt-property-decorator'
 import Onboard from '@web3-onboard/core'
 import injectedModule from '@web3-onboard/injected-wallets'
+import { LsKeys } from '~/api/localstorage'
 
 const WEB3_STORE = namespace('web3')
 
@@ -25,7 +26,7 @@ export default class WalletHandler extends Vue {
   async autoConnectWallet(): Promise<void> {
     try {
       const previouslyConnectedWallets = JSON.parse(
-        `${localStorage.getItem('connectedWallets')}`
+        `${this.$localStorageRepository.GetItem(LsKeys.CONNECTED_WALLETS)}`
       )
 
       if (previouslyConnectedWallets) {
@@ -124,7 +125,7 @@ export default class WalletHandler extends Vue {
         )
       } else if (this.web3_connected_primary_address) {
         // if newWalletState is empty and connectedPrimaryAddress is not null, meaning disconnected
-        localStorage.removeItem('connectedWallets')
+        this.$localStorageRepository.RemoveItem(LsKeys.CONNECTED_WALLETS)
         this.web3_set_connected_primary_address(null)
       }
     })

@@ -117,6 +117,7 @@
 
 <script lang="ts">
 import { Component, Vue, namespace } from 'nuxt-property-decorator'
+import { LsKeys } from '~/api/localstorage'
 
 const WEB3_STORE = namespace('web3')
 
@@ -172,8 +173,9 @@ export default class Header extends Vue {
 
       if (wallets[0]) {
         const connectedWallets = wallets.map(({ label }) => label)
-        localStorage.setItem(
-          'connectedWallets',
+
+        this.$localStorageRepository.SetItem(
+          LsKeys.CONNECTED_WALLETS,
           JSON.stringify(connectedWallets)
         )
       }
