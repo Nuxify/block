@@ -93,7 +93,7 @@ export default class Index extends Vue {
         message: 'Please enter a message.',
         variant: 'success',
         dismiss: true,
-        timeout: 5000,
+        timeout: 3000,
       })
       return
     }
@@ -104,7 +104,7 @@ export default class Index extends Vue {
         message: 'Please connect your wallet.',
         variant: 'success',
         dismiss: true,
-        timeout: 5000,
+        timeout: 3000,
       })
       return
     }
@@ -134,7 +134,7 @@ export default class Index extends Vue {
               'Kontrata Contract: Error occurred while processing request.',
             variant: 'success',
             dismiss: true,
-            timeout: 5000,
+            timeout: 3000,
           })
           return
         }
@@ -144,7 +144,7 @@ export default class Index extends Vue {
         message: 'Successfully set greeting message.',
         variant: 'success',
         dismiss: true,
-        timeout: 5000,
+        timeout: 3000,
       })
       this.message = ''
     } catch (error) {
@@ -158,7 +158,7 @@ export default class Index extends Vue {
           message: 'You cancelled the transaction.',
           variant: 'success',
           dismiss: true,
-          timeout: 5000,
+          timeout: 3000,
         })
       } else {
         this.global_set_alert({
@@ -167,7 +167,7 @@ export default class Index extends Vue {
             'Kontrata Contract: Something went wrong while processing request.',
           variant: 'success',
           dismiss: true,
-          timeout: 5000,
+          timeout: 3000,
         })
       }
     }
