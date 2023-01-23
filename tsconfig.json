@@ -20,7 +20,6 @@
       "@nuxt/types",
       "@nuxtjs/axios",
       "jest",
-      "vue-toastification/nuxt"
     ]
   },
   "exclude": ["node_modules", ".nuxt", "dist"]
