@@ -57,6 +57,13 @@ export default class Default extends Vue {
       }, this.global_alert.timeout)
     }
   }
+
+  beforeCreate(): void {
+    this.$nextTick(() => {
+      this.$nuxt.$loading.start()
+      setTimeout(() => this.$nuxt.$loading.finish(), 3000)
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>

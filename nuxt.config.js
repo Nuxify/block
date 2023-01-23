@@ -96,11 +96,8 @@ export default {
   /*
    ** Customize the progress-bar color
    */
-  loading: false,
-
-  loadingIndicator: {
-    name: false,
-  },
+  loading: '~/components/Loading.vue',
+  loadingIndicator: '~/components/Loading.vue',
   /*
    ** Global CSS
    */
