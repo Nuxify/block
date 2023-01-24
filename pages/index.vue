@@ -88,12 +88,24 @@ export default class Index extends Vue {
    */
   async setGreeting(): Promise<void> {
     if (this.message === '') {
-      this.$toast.error('Please enter a message')
+      this.global_set_alert({
+        state: true,
+        message: 'Please enter a message.',
+        variant: 'success',
+        dismiss: true,
+        timeout: 3000,
+      })
       return
     }
 
     if (this.web3_connected_primary_address === null) {
-      this.$toast.error('Please connect your wallet')
+      this.global_set_alert({
+        state: true,
+        message: 'Please connect your wallet.',
+        variant: 'success',
+        dismiss: true,
+        timeout: 3000,
+      })
       return
     }
 
@@ -116,14 +128,24 @@ export default class Index extends Vue {
         )
 
         if (!result) {
-          this.$toast.error(
-            'Kontrata Contract: Error occurred while processing request'
-          )
+          this.global_set_alert({
+            state: true,
+            message:
+              'Kontrata Contract: Error occurred while processing request.',
+            variant: 'success',
+            dismiss: true,
+            timeout: 3000,
+          })
           return
         }
       }
-
-      this.$toast.success('Successfully set greeting message')
+      this.global_set_alert({
+        state: true,
+        message: 'Successfully set greeting message.',
+        variant: 'success',
+        dismiss: true,
+        timeout: 3000,
+      })
       this.message = ''
     } catch (error) {
       console.error(error)
@@ -131,11 +153,22 @@ export default class Index extends Vue {
       const { message } = error as Error
 
       if (message.includes('denied')) {
-        this.$toast.error('You cancelled the transaction.')
+        this.global_set_alert({
+          state: true,
+          message: 'You cancelled the transaction.',
+          variant: 'success',
+          dismiss: true,
+          timeout: 3000,
+        })
       } else {
-        this.$toast.error(
-          'Kontrata Contract: Something went wrong while processing request'
-        )
+        this.global_set_alert({
+          state: true,
+          message:
+            'Kontrata Contract: Something went wrong while processing request.',
+          variant: 'success',
+          dismiss: true,
+          timeout: 3000,
+        })
       }
     }
 
