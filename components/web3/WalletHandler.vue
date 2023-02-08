@@ -66,6 +66,15 @@ export default class WalletHandler extends Vue {
     )
   }
 
+  /**
+   * Initialize web3 json provider
+   *
+   * @return  {void}
+   */
+  initializeJSONProvider(): void {
+    this.$web3.initWeb3JsonRPCProvider(this.$config.ethRPC)
+  }
+
   created(): void {
     const injected = injectedModule()
 
@@ -96,20 +105,16 @@ export default class WalletHandler extends Vue {
     // auto-reconnect on reload
     this.autoConnectWallet()
 
+    // initialize contracts
+    this.initializeContracts()
+
+    // initialize json provider
+    this.initializeJSONProvider()
+
     // wallet state listener
     const wallets = this.$web3.getWeb3Onboard().state.select('wallets')
     wallets.subscribe((newWalletState) => {
       if (newWalletState[0]) {
-        // initialize contracts once (without signer as it can be changing)
-        if (this.web3_connected_primary_address === null) {
-          this.web3_set_connected_primary_address(
-            newWalletState[0].accounts[0].address
-          )
-
-          this.initializeContracts()
-          console.log('initialized contracts')
-        }
-
         // update to latest selected provider
         this.$web3.initWeb3Provider(newWalletState[0].provider)
 

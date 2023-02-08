@@ -5,6 +5,7 @@ import { OnboardAPI } from '@web3-onboard/core'
 export default (ctx: Context, inject: any): void => {
   let web3Onboard: OnboardAPI
   let web3Provider: ethers.providers.Web3Provider // web3 provider
+  let web3JsonRPC: ethers.providers.JsonRpcProvider
   let greeterContract: ethers.Contract
 
   inject('web3', {
@@ -23,6 +24,14 @@ export default (ctx: Context, inject: any): void => {
      */
     getWeb3Provider(): ethers.providers.Web3Provider {
       return web3Provider
+    },
+    /**
+     * Get web3 json rpc provider
+     *
+     * @var {ethers.providers.JsonRpcProvider}
+     */
+    getWeb3JsonRPCProvider(): ethers.providers.JsonRpcProvider {
+      return web3JsonRPC
     },
     /**
      * Get greeter contract instance
@@ -57,6 +66,14 @@ export default (ctx: Context, inject: any): void => {
       web3Provider = new ethers.providers.Web3Provider(provider)
 
       return web3Provider
+    },
+    /**
+     * Initialize web3 json rpc
+     *
+     * @return  {ethers.providers.Web3Provider}
+     */
+    initWeb3JsonRPCProvider(provider: string): void {
+      web3JsonRPC = new ethers.providers.JsonRpcProvider(provider, 'any')
     },
     /**
      * Create new Greeter contract connection
