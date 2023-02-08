@@ -66,6 +66,15 @@ export default class WalletHandler extends Vue {
     )
   }
 
+  /**
+   * Initialize web3 json provider
+   *
+   * @return  {void}
+   */
+  initializeJSONProvider(): void {
+    this.$web3.initWeb3JsonRPCProvider(this.$config.ethRPC)
+  }
+
   created(): void {
     const injected = injectedModule()
 
@@ -95,6 +104,9 @@ export default class WalletHandler extends Vue {
 
     // auto-reconnect on reload
     this.autoConnectWallet()
+
+    // initialize json provider
+    this.initializeJSONProvider()
 
     // wallet state listener
     const wallets = this.$web3.getWeb3Onboard().state.select('wallets')

@@ -19,6 +19,7 @@ declare module 'vue/types/vue' {
     $web3: {
       getWeb3Onboard(): OnboardAPI
       getWeb3Provider(): ethers.providers.Web3Provider
+      getWeb3JsonRPCProvider(): ethers.providers.JsonRpcProvider
       getGreeterContract(): ethers.Contract
       initWeb3Onboard(onboard: OnboardAPI): OnboardAPI
       initWeb3Provider(
@@ -26,6 +27,7 @@ declare module 'vue/types/vue' {
           | ethers.providers.ExternalProvider
           | ethers.providers.JsonRpcFetchFunc
       ): ethers.providers.Web3Provider
+      initWeb3JsonRPCProvider(provider: string): void
       initGreeterContract(
         address: string,
         abi: ethers.ContractInterface
