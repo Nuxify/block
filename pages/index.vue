@@ -147,25 +147,38 @@ export default class Index extends Vue {
         timeout: 3000,
       })
       this.message = ''
-    } catch (error) {
-      console.error(error)
-
+    } catch (error: any) {
       const { message } = error as Error
 
       if (message.includes('denied')) {
         this.global_set_alert({
           state: true,
           message: 'You cancelled the transaction.',
-          variant: 'success',
+          variant: 'error',
+          dismiss: true,
+          timeout: 3000,
+        })
+      } else if (
+        message.includes('burn amount exceeds balance') ||
+        message.includes('insufficient funds')
+      ) {
+        this.global_set_alert({
+          state: true,
+          message: 'Kontrata Contract: Insufficient balance',
+          variant: 'error',
           dismiss: true,
           timeout: 3000,
         })
       } else {
+        const revertData = error.error.data.originalError.data
+        const decodedError = this.$web3
+          .getGreeterContract()
+          .interface.parseError(revertData)
+
         this.global_set_alert({
           state: true,
-          message:
-            'Kontrata Contract: Something went wrong while processing request.',
-          variant: 'success',
+          message: `Kontrata Contract: ${decodedError.name}`,
+          variant: 'error',
           dismiss: true,
           timeout: 3000,
         })
