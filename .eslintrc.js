@@ -72,5 +72,11 @@ module.exports = {
         'import/named': 'off',
       },
     },
+    {
+      files: ['pages/index.vue'],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+      },
+    },
   ],
 }
