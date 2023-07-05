@@ -35,7 +35,7 @@
     "@web3-onboard/injected-wallets": "^2.6.2",
     "babel-core": "^7.0.0-bridge.0",
     "ethers": "^5.5.3",
-    "nuxt": "^2.15.4",
+    "nuxt": "^2.17.0",
     "nuxt-property-decorator": "^2.7.2",
     "regenerator-runtime": "^0.13.7",
     "vue-scrollto": "^2.20.0"
