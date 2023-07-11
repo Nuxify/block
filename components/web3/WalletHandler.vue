@@ -114,7 +114,8 @@ export default class WalletHandler extends Vue {
     // wallet state listener
     const wallets = this.$web3.getWeb3Onboard().state.select('wallets')
     wallets.subscribe((newWalletState) => {
-      if (newWalletState[0]) {
+      console.log('wallet state:', newWalletState)
+      if (newWalletState && newWalletState.length > 0) {
         // update to latest selected provider
         this.$web3.initWeb3Provider(newWalletState[0].provider)
 
