@@ -135,6 +135,7 @@ export default {
     appName: APP_NAME,
     appDescription: APP_DESCRIPTION,
     debug: DEBUG,
+    appVersion: 'v1.0.0',
     // rpc
     ethChainId: DEBUG ? '0x5' : '0x5',
     ethToken: DEBUG ? 'GoerliETH' : 'GoerliETH',
