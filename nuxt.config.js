@@ -11,6 +11,8 @@ import {
   StagingGreeterContractABI,
 } from './contracts/staging'
 
+require('dotenv').config()
+
 const DEBUG = process.env.NODE_ENV !== 'production'
 const APP_NAME = 'Block'
 const APP_DESCRIPTION = 'dApp starter template using Nuxt.'
@@ -127,6 +129,7 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/pwa',
     ['vue-scrollto/nuxt', { duration: 1000 }],
+    '@nuxtjs/dotenv',
   ],
   /**
    * Public runtime configs
@@ -141,8 +144,8 @@ export default {
     ethToken: DEBUG ? 'GoerliETH' : 'GoerliETH',
     ethLabel: DEBUG ? 'Goerli' : 'Goerli',
     ethRPC: DEBUG
-      ? 'https://goerli.infura.io/v3/554ccee17f164b53be1bc5cfe77fb889'
-      : 'https://goerli.infura.io/v3/554ccee17f164b53be1bc5cfe77fb889',
+      ? process.env.STAGING_ETHEREUM_RPC_URL
+      : process.env.ETHEREUM_RPC_URL,
     // contracts
     greeterContractAddress: DEBUG
       ? StagingGreeterContractAddress
